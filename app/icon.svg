@@ -1,0 +1,10 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mi semestre">
+  <rect width="180" height="180" rx="36" fill="#ffffff" />
+  <path
+    d="M57 48V100.5C57 118.449 71.5517 133 89.5 133C107.448 133 122 118.449 122 100.5V48"
+    stroke="#111111"
+    stroke-width="18"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>
