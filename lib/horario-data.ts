@@ -1,41 +1,48 @@
 export type Subject = {
   id: string
   name: string
-  /** color de fondo (pastel) */
   bg: string
-  /** color de borde/acento más saturado */
   border: string
 }
 
 export type ClassSession = {
   id: string
   subjectId: string
-  day: number // 0 = Lunes ... 4 = Viernes
-  block: number // índice dentro de BLOCKS (franja horaria)
-  group: string // número de grupo (402, 62, 61, ...)
-  room: string // salón (texto libre)
+  day: number
+  block: number
+  group: string
+  room: string
 }
 
 export type Grade = {
   id: string
   name: string
-  /** nota obtenida (escala 0 - 5) */
   score: number
-  /** cuánto vale dentro del 100% (porcentaje) */
   weight: number
 }
 
 export type Exam = {
   id: string
   subjectId: string
-  date: string // yyyy-mm-dd
+  date: string
   group: "individual" | "grupal"
   kind: "examen" | "presentacion"
   weight: number
 }
 
-export const DAYS = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"]
+// NUEVO: una falta registrada
+export type Absence = {
+  id: string
+  subjectId: string
+  date: string // yyyy-mm-dd
+}
 
+// NUEVO: configuración de horas por materia
+export type SubjectConfig = {
+  directHours: number // horas de trabajo directo de clase
+}
+
+export const DAYS = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"]
 export const BLOCKS = ["6 a 8", "8 a 10", "10 a 12", "12 a 2", "2 a 4", "4 a 6"]
 
 export const COLORS_PALETTE = [
@@ -51,7 +58,7 @@ export const COLORS_PALETTE = [
 ]
 
 export const PASSING_GRADE = 3.0
-export const FINAL_WEIGHT = 25 // el final siempre vale 25%
+export const FINAL_WEIGHT = 25
 
 export const DEFAULT_CLASSES: ClassSession[] = []
 
@@ -59,21 +66,22 @@ export function getSubject(subjects: Subject[], id: string) {
   return subjects.find((s) => s.id === id)
 }
 
-/** Suma de puntos ya asegurados: Σ(nota * peso/100) */
 export function accumulatedPoints(grades: Grade[]) {
   return grades.reduce((acc, g) => acc + (g.score * g.weight) / 100, 0)
 }
 
-/** Porcentaje del curso ya calificado */
 export function coveredWeight(grades: Grade[]) {
   return grades.reduce((acc, g) => acc + g.weight, 0)
 }
 
-/**
- * Nota necesaria en el final (que vale 25%) para que el acumulado
- * quede como mínimo en PASSING_GRADE (3.0).
- */
 export function neededOnFinal(grades: Grade[]) {
   const points = accumulatedPoints(grades)
   return (PASSING_GRADE - points) / (FINAL_WEIGHT / 100)
+}
+
+// NUEVO: calcula el límite de faltas permitidas
+// límite = floor((horas * 0.20) / 2)
+// con la falta (límite + 1) la materia queda cancelada
+export function absenceLimit(directHours: number): number {
+  return Math.floor((directHours * 0.2) / 2)
 }

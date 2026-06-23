@@ -1,10 +1,10 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { getPlannerData, migrateFromLocal, savePlannerData, type PlannerState } from "@/app/actions/planner"
-import { DEFAULT_CLASSES, type ClassSession, type Exam, type Grade } from "@/lib/horario-data"
+import { DEFAULT_CLASSES, type ClassSession, type Exam, type Grade, type Absence, type SubjectConfig } from "@/lib/horario-data"
+import type { Subject } from "@/lib/horario-data"
 
-// Claves antiguas usadas por la versión que guardaba en localStorage.
 const LOCAL_KEYS = {
   classes: "horario.classes",
   grades: "horario.grades",
@@ -19,15 +19,15 @@ function readLocalState(): PlannerState | null {
     const rawGrades = window.localStorage.getItem(LOCAL_KEYS.grades)
     const rawExams = window.localStorage.getItem(LOCAL_KEYS.exams)
 
-    if (rawClasses === null && rawGrades === null && rawExams === null) {
-      return null
-    }
+    if (rawClasses === null && rawGrades === null && rawExams === null) return null
 
     return {
       subjects: [],
       classes: rawClasses ? (JSON.parse(rawClasses) as ClassSession[]) : DEFAULT_CLASSES,
       grades: rawGrades ? (JSON.parse(rawGrades) as Record<string, Grade[]>) : {},
       exams: rawExams ? (JSON.parse(rawExams) as Exam[]) : [],
+      absences: [],
+      subjectConfigs: {},
     }
   } catch {
     return null
@@ -37,17 +37,17 @@ function readLocalState(): PlannerState | null {
 export type PlannerStatus = "loading" | "saving" | "saved"
 
 export function usePlanner() {
-  const [subjects, setSubjects] = useState<import("@/lib/horario-data").Subject[]>([])
+  const [subjects, setSubjects] = useState<Subject[]>([])
   const [classes, setClasses] = useState<ClassSession[]>(DEFAULT_CLASSES)
   const [grades, setGrades] = useState<Record<string, Grade[]>>({})
   const [exams, setExams] = useState<Exam[]>([])
+  const [absences, setAbsences] = useState<Absence[]>([])
+  const [subjectConfigs, setSubjectConfigs] = useState<Record<string, SubjectConfig>>({})
   const [status, setStatus] = useState<PlannerStatus>("loading")
 
-  // Evita guardar durante la carga inicial.
   const ready = useRef(false)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Carga inicial: trae datos del servidor y migra localStorage si aplica.
   useEffect(() => {
     let cancelled = false
 
@@ -55,7 +55,6 @@ export function usePlanner() {
       try {
         let data = await getPlannerData()
 
-        // Migración única desde localStorage.
         if (!window.localStorage.getItem(MIGRATED_FLAG)) {
           const local = readLocalState()
           if (local) {
@@ -69,6 +68,8 @@ export function usePlanner() {
         setClasses(data.classes)
         setGrades(data.grades)
         setExams(data.exams)
+        setAbsences(data.absences ?? [])
+        setSubjectConfigs(data.subjectConfigs ?? {})
         setStatus("saved")
         ready.current = true
       } catch {
@@ -77,12 +78,9 @@ export function usePlanner() {
     }
 
     load()
-    return () => {
-      cancelled = true
-    }
+    return () => { cancelled = true }
   }, [])
 
-  // Guardado automático con debounce cuando cambian los datos.
   useEffect(() => {
     if (!ready.current) return
 
@@ -90,7 +88,7 @@ export function usePlanner() {
     if (saveTimer.current) clearTimeout(saveTimer.current)
 
     saveTimer.current = setTimeout(() => {
-      savePlannerData({ subjects, classes, grades, exams })
+      savePlannerData({ subjects, classes, grades, exams, absences, subjectConfigs })
         .then(() => setStatus("saved"))
         .catch(() => setStatus("saved"))
     }, 700)
@@ -98,17 +96,15 @@ export function usePlanner() {
     return () => {
       if (saveTimer.current) clearTimeout(saveTimer.current)
     }
-  }, [subjects, classes, grades, exams])
+  }, [subjects, classes, grades, exams, absences, subjectConfigs])
 
   return {
-    subjects,
-    setSubjects,
-    classes,
-    setClasses,
-    grades,
-    setGrades,
-    exams,
-    setExams,
+    subjects, setSubjects,
+    classes, setClasses,
+    grades, setGrades,
+    exams, setExams,
+    absences, setAbsences,
+    subjectConfigs, setSubjectConfigs,
     status,
   }
 }

@@ -1,8 +1,5 @@
 import { pgTable, text, timestamp, boolean, jsonb } from "drizzle-orm/pg-core"
 
-// --- Better Auth required tables -------------------------------------------
-// Column names are camelCase to match Better Auth's defaults. Do not rename.
-
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
@@ -53,15 +50,14 @@ export const verification = pgTable("verification", {
   updatedAt: timestamp("updatedAt").defaultNow(),
 })
 
-// --- App tables ------------------------------------------------------------
-// Almacena todos los datos del planeador (horario, notas, exámenes) como un
-// documento JSON por usuario. Una sola fila por usuario, identificada por userId.
-
 export const plannerData = pgTable("planner_data", {
   userId: text("userId").primaryKey(),
   subjects: jsonb("subjects").notNull().default([]),
   classes: jsonb("classes").notNull().default([]),
   grades: jsonb("grades").notNull().default({}),
   exams: jsonb("exams").notNull().default([]),
+  // NUEVAS COLUMNAS:
+  absences: jsonb("absences").notNull().default([]),
+  subjectConfigs: jsonb("subjectConfigs").notNull().default({}),
   updatedAt: timestamp("updatedAt").notNull().defaultNow(),
 })

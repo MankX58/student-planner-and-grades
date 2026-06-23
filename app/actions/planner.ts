@@ -5,7 +5,7 @@ import { db } from "@/lib/db"
 import { plannerData } from "@/lib/db/schema"
 import { eq } from "drizzle-orm"
 import { headers } from "next/headers"
-import type { ClassSession, Exam, Grade } from "@/lib/horario-data"
+import type { ClassSession, Exam, Grade, Absence, SubjectConfig } from "@/lib/horario-data"
 import { DEFAULT_CLASSES } from "@/lib/horario-data"
 
 export type PlannerState = {
@@ -13,6 +13,8 @@ export type PlannerState = {
   classes: ClassSession[]
   grades: Record<string, Grade[]>
   exams: Exam[]
+  absences: Absence[]
+  subjectConfigs: Record<string, SubjectConfig>
 }
 
 async function getUserId() {
@@ -21,10 +23,6 @@ async function getUserId() {
   return session.user.id
 }
 
-/**
- * Devuelve los datos del planeador del usuario. Si todavía no tiene una fila,
- * crea una con los valores por defecto y la devuelve.
- */
 export async function getPlannerData(): Promise<PlannerState> {
   const userId = await getUserId()
 
@@ -36,6 +34,8 @@ export async function getPlannerData(): Promise<PlannerState> {
       classes: DEFAULT_CLASSES,
       grades: {},
       exams: [],
+      absences: [],
+      subjectConfigs: {},
     }
     await db.insert(plannerData).values({ userId, ...initial })
     return initial
@@ -47,12 +47,11 @@ export async function getPlannerData(): Promise<PlannerState> {
     classes: (row.classes as ClassSession[]) ?? [],
     grades: (row.grades as Record<string, Grade[]>) ?? {},
     exams: (row.exams as Exam[]) ?? [],
+    absences: (row.absences as Absence[]) ?? [],
+    subjectConfigs: (row.subjectConfigs as Record<string, SubjectConfig>) ?? {},
   }
 }
 
-/**
- * Guarda el estado completo del planeador del usuario (upsert por userId).
- */
 export async function savePlannerData(state: PlannerState): Promise<void> {
   const userId = await getUserId()
 
@@ -64,6 +63,8 @@ export async function savePlannerData(state: PlannerState): Promise<void> {
       classes: state.classes,
       grades: state.grades,
       exams: state.exams,
+      absences: state.absences,
+      subjectConfigs: state.subjectConfigs,
       updatedAt: new Date(),
     })
     .onConflictDoUpdate({
@@ -73,16 +74,13 @@ export async function savePlannerData(state: PlannerState): Promise<void> {
         classes: state.classes,
         grades: state.grades,
         exams: state.exams,
+        absences: state.absences,
+        subjectConfigs: state.subjectConfigs,
         updatedAt: new Date(),
       },
     })
 }
 
-/**
- * Migra datos provenientes de localStorage SOLO si la fila del usuario está
- * "vacía" (es decir, igual a los valores por defecto y sin notas ni exámenes).
- * Devuelve el estado resultante.
- */
 export async function migrateFromLocal(local: PlannerState): Promise<PlannerState> {
   const userId = await getUserId()
 
