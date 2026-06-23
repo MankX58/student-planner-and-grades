@@ -243,19 +243,44 @@ export function FaltasTab({ subjects, absences, setAbsences, subjectConfigs, set
               <Label>Materia</Label>
               <Select value={draftSubjectId} onValueChange={setDraftSubjectId}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Selecciona una materia" />
+                  <SelectValue placeholder="Selecciona una materia">
+                    {draftSubjectId &&
+                      (() => {
+                        const s = subjects.find((s) => s.id === draftSubjectId)
+                        return s ? (
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="size-3 rounded-full"
+                              style={{
+                                backgroundColor: s.bg,
+                                border: `1px solid ${s.border}`,
+                              }}
+                            />
+                            {s.name}
+                          </div>
+                        ) : null
+                      })()}
+                  </SelectValue>
                 </SelectTrigger>
+
                 <SelectContent>
                   {subjects.map((s) => (
                     <SelectItem key={s.id} value={s.id}>
                       <div className="flex items-center gap-2">
-                        <div className="size-3 rounded-full" style={{ backgroundColor: s.bg, border: `1px solid ${s.border}` }} />
+                        <div
+                          className="size-3 rounded-full"
+                          style={{
+                            backgroundColor: s.bg,
+                            border: `1px solid ${s.border}`,
+                          }}
+                        />
                         {s.name}
                       </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+
             </div>
             <div className="space-y-2">
               <Label htmlFor="absence-date">Fecha de la falta</Label>
