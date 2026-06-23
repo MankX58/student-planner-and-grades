@@ -24,6 +24,7 @@ function readLocalState(): PlannerState | null {
     }
 
     return {
+      subjects: [],
       classes: rawClasses ? (JSON.parse(rawClasses) as ClassSession[]) : DEFAULT_CLASSES,
       grades: rawGrades ? (JSON.parse(rawGrades) as Record<string, Grade[]>) : {},
       exams: rawExams ? (JSON.parse(rawExams) as Exam[]) : [],
@@ -36,6 +37,7 @@ function readLocalState(): PlannerState | null {
 export type PlannerStatus = "loading" | "saving" | "saved"
 
 export function usePlanner() {
+  const [subjects, setSubjects] = useState<import("@/lib/horario-data").Subject[]>([])
   const [classes, setClasses] = useState<ClassSession[]>(DEFAULT_CLASSES)
   const [grades, setGrades] = useState<Record<string, Grade[]>>({})
   const [exams, setExams] = useState<Exam[]>([])
@@ -63,6 +65,7 @@ export function usePlanner() {
         }
 
         if (cancelled) return
+        setSubjects(data.subjects ?? [])
         setClasses(data.classes)
         setGrades(data.grades)
         setExams(data.exams)
@@ -87,7 +90,7 @@ export function usePlanner() {
     if (saveTimer.current) clearTimeout(saveTimer.current)
 
     saveTimer.current = setTimeout(() => {
-      savePlannerData({ classes, grades, exams })
+      savePlannerData({ subjects, classes, grades, exams })
         .then(() => setStatus("saved"))
         .catch(() => setStatus("saved"))
     }, 700)
@@ -95,9 +98,11 @@ export function usePlanner() {
     return () => {
       if (saveTimer.current) clearTimeout(saveTimer.current)
     }
-  }, [classes, grades, exams])
+  }, [subjects, classes, grades, exams])
 
   return {
+    subjects,
+    setSubjects,
     classes,
     setClasses,
     grades,

@@ -59,6 +59,7 @@ export const verification = pgTable("verification", {
 
 export const plannerData = pgTable("planner_data", {
   userId: text("userId").primaryKey(),
+  subjects: jsonb("subjects").notNull().default([]),
   classes: jsonb("classes").notNull().default([]),
   grades: jsonb("grades").notNull().default({}),
   exams: jsonb("exams").notNull().default([]),

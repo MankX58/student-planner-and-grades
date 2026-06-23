@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Pencil, Trash2, CalendarDays } from "lucide-react"
+import { Plus, Pencil, Trash2, CalendarDays, Settings2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -19,7 +19,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { BLOCKS, DAYS, SUBJECTS, getSubject, type ClassSession } from "@/lib/horario-data"
+import { BLOCKS, DAYS, getSubject, type Subject, type ClassSession, type Grade, type Exam } from "@/lib/horario-data"
+import { MateriasDialog } from "./materias-dialog"
 import {
   DndContext,
   DragOverlay,
@@ -35,8 +36,12 @@ import { useDraggable, useDroppable } from "@dnd-kit/core"
 import { CSS } from "@dnd-kit/utilities"
 
 type Props = {
+  subjects: Subject[]
+  setSubjects: React.Dispatch<React.SetStateAction<Subject[]>>
   classes: ClassSession[]
   setClasses: React.Dispatch<React.SetStateAction<ClassSession[]>>
+  setGrades: React.Dispatch<React.SetStateAction<Record<string, Grade[]>>>
+  setExams: React.Dispatch<React.SetStateAction<Exam[]>>
 }
 
 type Draft = {
@@ -119,8 +124,8 @@ function DraggableClass({
   )
 }
 
-function ClassCardOverlay({ c }: { c: ClassSession }) {
-  const subject = getSubject(c.subjectId)
+function ClassCardOverlay({ c, subjects }: { c: ClassSession, subjects: Subject[] }) {
+  const subject = getSubject(subjects, c.subjectId)
   if (!subject) return null
   return (
     <div
@@ -134,8 +139,9 @@ function ClassCardOverlay({ c }: { c: ClassSession }) {
   )
 }
 
-export function HorarioTab({ classes, setClasses }: Props) {
+export function HorarioTab({ subjects, setSubjects, classes, setClasses, setGrades, setExams }: Props) {
   const [open, setOpen] = useState(false)
+  const [manageOpen, setManageOpen] = useState(false)
   const [draft, setDraft] = useState<Draft | null>(null)
   const [isNew, setIsNew] = useState(false)
   const [activeId, setActiveId] = useState<string | null>(null)
@@ -159,7 +165,7 @@ export function HorarioTab({ classes, setClasses }: Props) {
   function openNew() {
     setDraft({
       id: crypto.randomUUID(),
-      subjectId: SUBJECTS[0].id,
+      subjectId: subjects.length > 0 ? subjects[0].id : "",
       day: selectedMobileDay,
       block: 0,
       group: "",
@@ -231,9 +237,14 @@ export function HorarioTab({ classes, setClasses }: Props) {
             Mantén presionado para reordenar.
           </p>
         </div>
-        <Button onClick={openNew} size="sm" className="rounded-full shadow-sm hover:shadow">
-          <Plus className="size-4 mr-1" /> Clase
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={() => setManageOpen(true)} variant="outline" size="sm" className="rounded-full shadow-sm">
+            <Settings2 className="size-4 sm:mr-1" /> <span className="hidden sm:inline">Materias</span>
+          </Button>
+          <Button onClick={openNew} size="sm" className="rounded-full shadow-sm hover:shadow" disabled={subjects.length === 0}>
+            <Plus className="size-4 mr-1" /> Clase
+          </Button>
+        </div>
       </div>
 
       {classes.length === 0 && (
@@ -243,11 +254,19 @@ export function HorarioTab({ classes, setClasses }: Props) {
           </div>
           <h3 className="font-semibold text-lg mb-1">Tu horario está vacío</h3>
           <p className="text-sm text-muted-foreground mb-4 max-w-[250px]">
-            Agrega tu primera clase para empezar a organizar tu semestre.
+            {subjects.length === 0 
+              ? "Primero necesitas crear algunas materias para poder agregarlas a tu horario."
+              : "Agrega tu primera clase para empezar a organizar tu semestre."}
           </p>
-          <Button onClick={openNew} variant="secondary">
-            Agregar primera clase
-          </Button>
+          {subjects.length === 0 ? (
+            <Button onClick={() => setManageOpen(true)} variant="secondary">
+              Crear primera materia
+            </Button>
+          ) : (
+            <Button onClick={openNew} variant="secondary">
+              Agregar primera clase
+            </Button>
+          )}
         </div>
       )}
 
@@ -278,7 +297,7 @@ export function HorarioTab({ classes, setClasses }: Props) {
             <div className="grid gap-3 animate-slide-up" key={selectedMobileDay}>
               {BLOCKS.map((blockLabel, block) => {
                 const c = classAt(selectedMobileDay, block)
-                const subject = c ? getSubject(c.subjectId) : undefined
+                const subject = c ? getSubject(subjects, c.subjectId) : undefined
                 const slotId = `slot-${selectedMobileDay}-${block}`
                 return (
                   <div key={blockLabel} className="flex gap-3 items-stretch bg-card p-2 rounded-xl border">
@@ -293,7 +312,7 @@ export function HorarioTab({ classes, setClasses }: Props) {
                           <div className="flex items-center justify-center h-full min-h-[60px] text-xs text-muted-foreground/50 italic" onClick={() => {
                             setDraft({
                               id: crypto.randomUUID(),
-                              subjectId: SUBJECTS[0].id,
+                              subjectId: subjects.length > 0 ? subjects[0].id : "",
                               day: selectedMobileDay,
                               block,
                               group: "",
@@ -336,7 +355,7 @@ export function HorarioTab({ classes, setClasses }: Props) {
                     </td>
                     {DAYS.map((d, day) => {
                       const c = classAt(day, block)
-                      const subject = c ? getSubject(c.subjectId) : undefined
+                      const subject = c ? getSubject(subjects, c.subjectId) : undefined
                       const slotId = `slot-${day}-${block}`
                       return (
                         <td key={d} className="border-b border-r last:border-r-0 p-1.5 align-top h-20">
@@ -355,7 +374,7 @@ export function HorarioTab({ classes, setClasses }: Props) {
           </div>
 
           <DragOverlay dropAnimation={defaultDropAnimationSideEffects({ duration: 250 })}>
-            {activeClass ? <ClassCardOverlay c={activeClass} /> : null}
+            {activeClass ? <ClassCardOverlay c={activeClass} subjects={subjects} /> : null}
           </DragOverlay>
         </DndContext>
       )}
@@ -363,7 +382,7 @@ export function HorarioTab({ classes, setClasses }: Props) {
       {/* Leyenda de materias */}
       {classes.length > 0 && (
         <div className="flex flex-wrap gap-2 pt-4">
-          {SUBJECTS.map((s) => (
+          {subjects.map((s) => (
             <span
               key={s.id}
               className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium text-neutral-900 shadow-sm hover:scale-105 transition-transform"
@@ -389,10 +408,10 @@ export function HorarioTab({ classes, setClasses }: Props) {
                   onValueChange={(v) => v && setDraft({ ...draft, subjectId: v })}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue>{() => getSubject(draft.subjectId)?.name}</SelectValue>
+                    <SelectValue>{() => getSubject(subjects, draft.subjectId)?.name}</SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    {SUBJECTS.map((s) => (
+                    {subjects.map((s) => (
                       <SelectItem key={s.id} value={s.id}>
                         <div className="flex items-center gap-2">
                           <div className="size-3 rounded-full" style={{ backgroundColor: s.bg, border: `1px solid ${s.border}` }} />
@@ -483,6 +502,15 @@ export function HorarioTab({ classes, setClasses }: Props) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <MateriasDialog
+        open={manageOpen}
+        onOpenChange={setManageOpen}
+        subjects={subjects}
+        setSubjects={setSubjects}
+        setClasses={setClasses}
+        setGrades={setGrades}
+        setExams={setExams}
+      />
     </div>
   )
 }

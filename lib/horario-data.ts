@@ -38,13 +38,16 @@ export const DAYS = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"]
 
 export const BLOCKS = ["6 a 8", "8 a 10", "10 a 12", "12 a 2", "2 a 4", "4 a 6"]
 
-export const SUBJECTS: Subject[] = [
-  { id: "proyecto", name: "Proyecto 1", bg: "#fbeec6", border: "#e0b53e" },
-  { id: "diseno", name: "Diseño y Arq. de Software", bg: "#f5aaa3", border: "#e26b60" },
-  { id: "electronica", name: "Electronica Digital", bg: "#aecdee", border: "#5b94d6" },
-  { id: "estadistica", name: "Estadistica", bg: "#d8e7f6", border: "#8fb8e0" },
-  { id: "gestion", name: "Gestion de Datos", bg: "#f4c79c", border: "#df9750" },
-  { id: "ingles", name: "Electiva Ingles", bg: "#bcdcab", border: "#7cb45f" },
+export const COLORS_PALETTE = [
+  { bg: "#fbeec6", border: "#e0b53e" },
+  { bg: "#f5aaa3", border: "#e26b60" },
+  { bg: "#aecdee", border: "#5b94d6" },
+  { bg: "#d8e7f6", border: "#8fb8e0" },
+  { bg: "#f4c79c", border: "#df9750" },
+  { bg: "#bcdcab", border: "#7cb45f" },
+  { bg: "#f3e8ff", border: "#c084fc" },
+  { bg: "#ccfbf1", border: "#2dd4bf" },
+  { bg: "#ffedd5", border: "#fb923c" },
 ]
 
 export const PASSING_GRADE = 3.0
@@ -52,8 +55,8 @@ export const FINAL_WEIGHT = 25 // el final siempre vale 25%
 
 export const DEFAULT_CLASSES: ClassSession[] = []
 
-export function getSubject(id: string) {
-  return SUBJECTS.find((s) => s.id === id)
+export function getSubject(subjects: Subject[], id: string) {
+  return subjects.find((s) => s.id === id)
 }
 
 /** Suma de puntos ya asegurados: Σ(nota * peso/100) */

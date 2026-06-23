@@ -9,6 +9,7 @@ import type { ClassSession, Exam, Grade } from "@/lib/horario-data"
 import { DEFAULT_CLASSES } from "@/lib/horario-data"
 
 export type PlannerState = {
+  subjects: import("@/lib/horario-data").Subject[]
   classes: ClassSession[]
   grades: Record<string, Grade[]>
   exams: Exam[]
@@ -31,6 +32,7 @@ export async function getPlannerData(): Promise<PlannerState> {
 
   if (rows.length === 0) {
     const initial: PlannerState = {
+      subjects: [],
       classes: DEFAULT_CLASSES,
       grades: {},
       exams: [],
@@ -41,6 +43,7 @@ export async function getPlannerData(): Promise<PlannerState> {
 
   const row = rows[0]
   return {
+    subjects: (row.subjects as import("@/lib/horario-data").Subject[]) ?? [],
     classes: (row.classes as ClassSession[]) ?? [],
     grades: (row.grades as Record<string, Grade[]>) ?? {},
     exams: (row.exams as Exam[]) ?? [],
@@ -57,6 +60,7 @@ export async function savePlannerData(state: PlannerState): Promise<void> {
     .insert(plannerData)
     .values({
       userId,
+      subjects: state.subjects,
       classes: state.classes,
       grades: state.grades,
       exams: state.exams,
@@ -65,6 +69,7 @@ export async function savePlannerData(state: PlannerState): Promise<void> {
     .onConflictDoUpdate({
       target: plannerData.userId,
       set: {
+        subjects: state.subjects,
         classes: state.classes,
         grades: state.grades,
         exams: state.exams,
@@ -84,11 +89,13 @@ export async function migrateFromLocal(local: PlannerState): Promise<PlannerStat
   const current = await getPlannerData()
 
   const isPristine =
+    current.subjects.length === 0 &&
     Object.keys(current.grades).length === 0 &&
     current.exams.length === 0 &&
     JSON.stringify(current.classes) === JSON.stringify(DEFAULT_CLASSES)
 
   const hasLocalData =
+    (local.subjects ?? []).length > 0 ||
     Object.keys(local.grades ?? {}).length > 0 ||
     (local.exams ?? []).length > 0 ||
     JSON.stringify(local.classes ?? []) !== JSON.stringify(DEFAULT_CLASSES)

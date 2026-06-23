@@ -6,23 +6,21 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import {
-  SUBJECTS,
-  FINAL_WEIGHT,
-  PASSING_GRADE,
-  accumulatedPoints,
-  coveredWeight,
   neededOnFinal,
+  getSubject,
+  type Subject,
   type Grade,
 } from "@/lib/horario-data"
 
 type GradesMap = Record<string, Grade[]>
 
 type Props = {
+  subjects: Subject[]
   grades: GradesMap
   setGrades: React.Dispatch<React.SetStateAction<GradesMap>>
 }
 
-export function NotasTab({ grades, setGrades }: Props) {
+export function NotasTab({ subjects, grades, setGrades }: Props) {
   return (
     <div className="space-y-6">
       <div>
@@ -33,19 +31,27 @@ export function NotasTab({ grades, setGrades }: Props) {
         </p>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2 animate-slide-up">
-        {SUBJECTS.map((s) => (
-          <SubjectGrades
-            key={s.id}
-            subjectId={s.id}
-            name={s.name}
-            bg={s.bg}
-            border={s.border}
-            grades={grades[s.id] ?? []}
-            setGrades={setGrades}
-          />
-        ))}
-      </div>
+      {subjects.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-12 px-4 text-center border-2 border-dashed rounded-xl bg-card animate-scale-in">
+          <p className="text-sm text-muted-foreground">
+            No tienes materias creadas. Ve al horario y crea tus materias para poder agregar notas.
+          </p>
+        </div>
+      ) : (
+        <div className="grid gap-4 lg:grid-cols-2 animate-slide-up">
+          {subjects.map((s) => (
+            <SubjectGrades
+              key={s.id}
+              subjectId={s.id}
+              name={s.name}
+              bg={s.bg}
+              border={s.border}
+              grades={grades[s.id] ?? []}
+              setGrades={setGrades}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }

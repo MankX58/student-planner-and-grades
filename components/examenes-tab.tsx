@@ -14,15 +14,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { SUBJECTS, getSubject, type Exam } from "@/lib/horario-data"
+import { getSubject, type Subject, type Exam } from "@/lib/horario-data"
 
 type Props = {
+  subjects: Subject[]
   exams: Exam[]
   setExams: React.Dispatch<React.SetStateAction<Exam[]>>
 }
 
-export function ExamenesTab({ exams, setExams }: Props) {
-  const [subjectId, setSubjectId] = useState(SUBJECTS[0].id)
+export function ExamenesTab({ subjects, exams, setExams }: Props) {
+  const [subjectId, setSubjectId] = useState(subjects.length > 0 ? subjects[0].id : "")
   const [date, setDate] = useState("")
   const [group, setGroup] = useState<Exam["group"]>("individual")
   const [kind, setKind] = useState<Exam["kind"]>("examen")
@@ -74,15 +75,19 @@ export function ExamenesTab({ exams, setExams }: Props) {
           <div className="space-y-1 lg:col-span-2">
             <Label>Materia</Label>
             <Select value={subjectId} onValueChange={(v) => v && setSubjectId(v)}>
-              <SelectTrigger>
-                <SelectValue>{() => getSubject(subjectId)?.name}</SelectValue>
+              <SelectTrigger disabled={subjects.length === 0}>
+                <SelectValue placeholder="Selecciona una materia">{() => getSubject(subjects, subjectId)?.name}</SelectValue>
               </SelectTrigger>
               <SelectContent>
-                {SUBJECTS.map((s) => (
-                  <SelectItem key={s.id} value={s.id}>
-                    {s.name}
-                  </SelectItem>
-                ))}
+                {subjects.length === 0 ? (
+                  <div className="p-2 text-sm text-muted-foreground text-center">No hay materias</div>
+                ) : (
+                  subjects.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>
+                      {s.name}
+                    </SelectItem>
+                  ))
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -129,7 +134,7 @@ export function ExamenesTab({ exams, setExams }: Props) {
                 placeholder="25"
                 inputMode="numeric"
               />
-              <Button onClick={add} size="icon" aria-label="Agregar examen" className="shrink-0">
+              <Button onClick={add} size="icon" aria-label="Agregar examen" className="shrink-0" disabled={subjects.length === 0}>
                 <Plus className="size-4" />
               </Button>
             </div>
@@ -141,7 +146,7 @@ export function ExamenesTab({ exams, setExams }: Props) {
       {sorted.length > 0 ? (
         <div className="space-y-3 animate-slide-up" style={{ animationDelay: '100ms' }}>
           {sorted.map((e) => {
-            const subject = getSubject(e.subjectId)
+            const subject = getSubject(subjects, e.subjectId)
             return (
               <div
                 key={e.id}

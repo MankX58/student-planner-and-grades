@@ -37,7 +37,7 @@ function SyncBadge({ status }: { status: "loading" | "saving" | "saved" }) {
 
 export function PlannerView({ userName }: { userName: string }) {
   const router = useRouter()
-  const { classes, setClasses, grades, setGrades, exams, setExams, status } = usePlanner()
+  const { subjects, setSubjects, classes, setClasses, grades, setGrades, exams, setExams, status } = usePlanner()
 
   async function handleSignOut() {
     await authClient.signOut()
@@ -80,13 +80,13 @@ export function PlannerView({ userName }: { userName: string }) {
         </TabsList>
 
         <TabsContent value="horario" className="mt-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-          <HorarioTab classes={classes} setClasses={setClasses} />
+          <HorarioTab subjects={subjects} setSubjects={setSubjects} classes={classes} setClasses={setClasses} setGrades={setGrades} setExams={setExams} />
         </TabsContent>
         <TabsContent value="notas" className="mt-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-          <NotasTab grades={grades} setGrades={setGrades} />
+          <NotasTab subjects={subjects} grades={grades} setGrades={setGrades} />
         </TabsContent>
         <TabsContent value="examenes" className="mt-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-          <ExamenesTab exams={exams} setExams={setExams} />
+          <ExamenesTab subjects={subjects} exams={exams} setExams={setExams} />
         </TabsContent>
       </Tabs>
 
