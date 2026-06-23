@@ -1,11 +1,12 @@
 "use client"
 
-import { CalendarDays, GraduationCap, ClipboardList, LogOut, Cloud, CloudOff, Loader2 } from "lucide-react"
+import { CalendarDays, GraduationCap, ClipboardList, LogOut, Cloud, CloudOff, Loader2, UserX } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { HorarioTab } from "@/components/horario-tab"
 import { NotasTab } from "@/components/notas-tab"
 import { ExamenesTab } from "@/components/examenes-tab"
+import { FaltasTab } from "@/components/faltas-tab"
 import { usePlanner } from "@/lib/use-planner"
 import { authClient } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
@@ -37,7 +38,15 @@ function SyncBadge({ status }: { status: "loading" | "saving" | "saved" }) {
 
 export function PlannerView({ userName, userEmail }: { userName: string; userEmail: string }) {
   const router = useRouter()
-  const { subjects, setSubjects, classes, setClasses, grades, setGrades, exams, setExams, status } = usePlanner()
+  const {
+    subjects, setSubjects,
+    classes, setClasses,
+    grades, setGrades,
+    exams, setExams,
+    absences, setAbsences,
+    subjectConfigs, setSubjectConfigs,
+    status,
+  } = usePlanner()
 
   async function handleSignOut() {
     await authClient.signOut()
@@ -70,18 +79,22 @@ export function PlannerView({ userName, userEmail }: { userName: string; userEma
       </header>
 
       <Tabs defaultValue="horario" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 sm:w-auto sm:inline-flex p-1 bg-muted/50 rounded-xl">
+        <TabsList className="grid w-full grid-cols-4 sm:w-auto sm:inline-flex p-1 bg-muted/50 rounded-xl">
           <TabsTrigger value="horario" className="gap-2 rounded-lg data-[state=active]:shadow-sm">
-            <CalendarDays className="size-4 md:size-4" />
-            <span className="text-xs sm:text-sm md:inline">Horario</span>
+            <CalendarDays className="size-4" />
+            <span className="text-xs sm:text-sm">Horario</span>
           </TabsTrigger>
           <TabsTrigger value="notas" className="gap-2 rounded-lg data-[state=active]:shadow-sm">
-            <GraduationCap className="size-4 md:size-4" />
-            <span className="text-xs sm:text-sm md:inline">Notas</span>
+            <GraduationCap className="size-4" />
+            <span className="text-xs sm:text-sm">Notas</span>
           </TabsTrigger>
           <TabsTrigger value="examenes" className="gap-2 rounded-lg data-[state=active]:shadow-sm">
-            <ClipboardList className="size-4 md:size-4" />
-            <span className="text-xs sm:text-sm md:inline">Exámenes</span>
+            <ClipboardList className="size-4" />
+            <span className="text-xs sm:text-sm">Exámenes</span>
+          </TabsTrigger>
+          <TabsTrigger value="faltas" className="gap-2 rounded-lg data-[state=active]:shadow-sm">
+            <UserX className="size-4" />
+            <span className="text-xs sm:text-sm">Faltas</span>
           </TabsTrigger>
         </TabsList>
 
@@ -100,6 +113,15 @@ export function PlannerView({ userName, userEmail }: { userName: string; userEma
         </TabsContent>
         <TabsContent value="examenes" className="mt-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
           <ExamenesTab subjects={subjects} exams={exams} setExams={setExams} />
+        </TabsContent>
+        <TabsContent value="faltas" className="mt-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <FaltasTab
+            subjects={subjects}
+            absences={absences}
+            setAbsences={setAbsences}
+            subjectConfigs={subjectConfigs}
+            setSubjectConfigs={setSubjectConfigs}
+          />
         </TabsContent>
       </Tabs>
 
