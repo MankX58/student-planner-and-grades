@@ -68,11 +68,25 @@ function SubjectGrades({
   const [gName, setGName] = useState("")
   const [gScore, setGScore] = useState("")
   const [gWeight, setGWeight] = useState("")
+  const [error, setError] = useState("")
+
+  const usedWeight = coveredWeight(grades)
+  const remainingWeight = 100 - usedWeight
 
   function add() {
     const score = Number(gScore)
     const weight = Number(gWeight)
     if (!gName.trim() || Number.isNaN(score) || Number.isNaN(weight)) return
+    if (weight <= 0) {
+      setError("El porcentaje debe ser mayor a 0.")
+      return
+    }
+    if (usedWeight + weight > 100) {
+      setError(
+        `Te queda ${remainingWeight}% por asignar. No puedes superar el 100%.`,
+      )
+      return
+    }
     const grade: Grade = {
       id: crypto.randomUUID(),
       name: gName.trim(),
@@ -83,6 +97,7 @@ function SubjectGrades({
     setGName("")
     setGScore("")
     setGWeight("")
+    setError("")
   }
 
   function remove(id: string) {
@@ -166,10 +181,26 @@ function SubjectGrades({
               className="h-9"
             />
           </div>
-          <Button onClick={add} size="icon" className="h-9 w-9" aria-label="Agregar nota">
+          <Button
+            onClick={add}
+            size="icon"
+            className="h-9 w-9"
+            aria-label="Agregar nota"
+            disabled={remainingWeight <= 0}
+          >
             <Plus className="size-4" />
           </Button>
         </div>
+
+        {error ? (
+          <p className="text-xs font-medium text-destructive">{error}</p>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            {remainingWeight > 0
+              ? `Disponible: ${remainingWeight}% por asignar.`
+              : "Ya asignaste el 100% de las notas."}
+          </p>
+        )}
 
         {/* Resumen */}
         <div className="grid grid-cols-2 gap-2 border-t pt-3 text-sm">

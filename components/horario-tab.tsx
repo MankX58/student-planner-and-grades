@@ -33,7 +33,6 @@ type Draft = {
   block: number
   group: string
   room: string
-  building: string
 }
 
 export function HorarioTab({ classes, setClasses }: Props) {
@@ -55,7 +54,6 @@ export function HorarioTab({ classes, setClasses }: Props) {
       block: 0,
       group: "",
       room: "",
-      building: "",
     })
     setIsNew(true)
     setOpen(true)
@@ -84,7 +82,7 @@ export function HorarioTab({ classes, setClasses }: Props) {
         <div>
           <h2 className="text-lg font-semibold">Mi horario</h2>
           <p className="text-sm text-muted-foreground">
-            Toca una clase para editar el grupo, el salón y el bloque (edificio).
+            Toca una clase para editar el grupo y el salón.
           </p>
         </div>
         <Button onClick={openNew} size="sm">
@@ -111,7 +109,7 @@ export function HorarioTab({ classes, setClasses }: Props) {
           <thead>
             <tr>
               <th className="border-b border-r p-3 text-left font-semibold text-muted-foreground">
-                Bloque
+                Horario
               </th>
               {DAYS.map((d) => (
                 <th key={d} className="border-b p-3 text-center font-semibold">
@@ -149,9 +147,6 @@ export function HorarioTab({ classes, setClasses }: Props) {
                           </span>
                           <span className="text-[11px] opacity-80">
                             Salón: {c.room || "—"}
-                          </span>
-                          <span className="text-[11px] opacity-80">
-                            Bloque: {c.building || "—"}
                           </span>
                           <Pencil className="size-3 opacity-0 transition group-hover:opacity-60" />
                         </button>
@@ -243,26 +238,14 @@ export function HorarioTab({ classes, setClasses }: Props) {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <Label htmlFor="room">Salón</Label>
-                  <Input
-                    id="room"
-                    value={draft.room}
-                    placeholder="Sin asignar"
-                    onChange={(e) => setDraft({ ...draft, room: e.target.value })}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="building">Bloque (edificio)</Label>
-                  <Input
-                    id="building"
-                    value={draft.building}
-                    placeholder="Sin asignar"
-                    onChange={(e) => setDraft({ ...draft, building: e.target.value })}
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="room">Salón</Label>
+                <Input
+                  id="room"
+                  value={draft.room}
+                  placeholder="Sin asignar"
+                  onChange={(e) => setDraft({ ...draft, room: e.target.value })}
+                />
               </div>
             </div>
           )}
