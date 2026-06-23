@@ -224,11 +224,6 @@ export function HorarioTab({ subjects, setSubjects, classes, setClasses, setGrad
       }
 
       if (exists) {
-
-  function availableSlotLabel(day: number) {
-    const occupied = classes.find((c) => c.day === day && c.block === multiDraft?.block)
-    return occupied ? `Ocupado por ${getSubject(subjects, occupied.subjectId)?.name ?? "otra materia"}` : "Disponible"
-  }
         delete nextRooms[day]
       }
 
@@ -238,6 +233,11 @@ export function HorarioTab({ subjects, setSubjects, classes, setClasses, setGrad
         rooms: nextRooms,
       }
     })
+  }
+
+  function availableSlotLabel(day: number) {
+    const occupied = classes.find((c) => c.day === day && c.block === multiDraft?.block)
+    return occupied ? `Ocupado por ${getSubject(subjects, occupied.subjectId)?.name ?? "otra materia"}` : "Disponible"
   }
 
   function classAt(day: number, block: number) {
