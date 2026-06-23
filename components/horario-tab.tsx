@@ -31,7 +31,9 @@ type Draft = {
   subjectId: string
   day: number
   block: number
+  group: string
   room: string
+  building: string
 }
 
 export function HorarioTab({ classes, setClasses }: Props) {
@@ -51,7 +53,9 @@ export function HorarioTab({ classes, setClasses }: Props) {
       subjectId: SUBJECTS[0].id,
       day: 0,
       block: 0,
+      group: "",
       room: "",
+      building: "",
     })
     setIsNew(true)
     setOpen(true)
@@ -80,7 +84,7 @@ export function HorarioTab({ classes, setClasses }: Props) {
         <div>
           <h2 className="text-lg font-semibold">Mi horario</h2>
           <p className="text-sm text-muted-foreground">
-            Toca una clase para editar el salón y el bloque.
+            Toca una clase para editar el grupo, el salón y el bloque (edificio).
           </p>
         </div>
         <Button onClick={openNew} size="sm">
@@ -141,7 +145,13 @@ export function HorarioTab({ classes, setClasses }: Props) {
                             {subject.name}
                           </span>
                           <span className="text-[11px] opacity-80">
+                            Grupo: {c.group || "—"}
+                          </span>
+                          <span className="text-[11px] opacity-80">
                             Salón: {c.room || "—"}
+                          </span>
+                          <span className="text-[11px] opacity-80">
+                            Bloque: {c.building || "—"}
                           </span>
                           <Pencil className="size-3 opacity-0 transition group-hover:opacity-60" />
                         </button>
@@ -204,7 +214,7 @@ export function HorarioTab({ classes, setClasses }: Props) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Bloque</Label>
+                  <Label>Horario</Label>
                   <Select
                     value={String(draft.block)}
                     onValueChange={(v) => v && setDraft({ ...draft, block: Number(v) })}
@@ -224,13 +234,35 @@ export function HorarioTab({ classes, setClasses }: Props) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="room">Salón</Label>
+                <Label htmlFor="group">Grupo</Label>
                 <Input
-                  id="room"
-                  value={draft.room}
+                  id="group"
+                  value={draft.group}
                   placeholder="Ej: 402"
-                  onChange={(e) => setDraft({ ...draft, room: e.target.value })}
+                  onChange={(e) => setDraft({ ...draft, group: e.target.value })}
                 />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="room">Salón</Label>
+                  <Input
+                    id="room"
+                    value={draft.room}
+                    placeholder="Sin asignar"
+                    onChange={(e) => setDraft({ ...draft, room: e.target.value })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="building">Bloque (edificio)</Label>
+                  <Input
+                    id="building"
+                    value={draft.building}
+                    placeholder="Sin asignar"
+                    onChange={(e) => setDraft({ ...draft, building: e.target.value })}
+                  />
+                </div>
               </div>
             </div>
           )}

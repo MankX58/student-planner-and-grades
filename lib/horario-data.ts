@@ -11,8 +11,10 @@ export type ClassSession = {
   id: string
   subjectId: string
   day: number // 0 = Lunes ... 4 = Viernes
-  block: number // índice dentro de BLOCKS
-  room: string
+  block: number // índice dentro de BLOCKS (franja horaria)
+  group: string // número de grupo (402, 62, 61, ...)
+  room: string // salón (texto libre)
+  building: string // bloque / edificio (texto libre)
 }
 
 export type Grade = {
@@ -50,17 +52,17 @@ export const PASSING_GRADE = 3.0
 export const FINAL_WEIGHT = 25 // el final siempre vale 25%
 
 export const DEFAULT_CLASSES: ClassSession[] = [
-  { id: "c1", subjectId: "diseno", day: 1, block: 0, room: "62" },
-  { id: "c2", subjectId: "gestion", day: 2, block: 0, room: "63" },
-  { id: "c3", subjectId: "diseno", day: 3, block: 0, room: "62" },
-  { id: "c4", subjectId: "gestion", day: 4, block: 0, room: "63" },
-  { id: "c5", subjectId: "electronica", day: 1, block: 1, room: "61" },
-  { id: "c6", subjectId: "proyecto", day: 2, block: 1, room: "402" },
-  { id: "c7", subjectId: "electronica", day: 3, block: 1, room: "61" },
-  { id: "c8", subjectId: "estadistica", day: 0, block: 2, room: "401" },
-  { id: "c9", subjectId: "estadistica", day: 2, block: 2, room: "401" },
-  { id: "c10", subjectId: "ingles", day: 3, block: 2, room: "Fantastic" },
-  { id: "c11", subjectId: "estadistica", day: 4, block: 2, room: "401" },
+  { id: "c1", subjectId: "diseno", day: 1, block: 0, group: "62", room: "", building: "" },
+  { id: "c2", subjectId: "gestion", day: 2, block: 0, group: "63", room: "", building: "" },
+  { id: "c3", subjectId: "diseno", day: 3, block: 0, group: "62", room: "", building: "" },
+  { id: "c4", subjectId: "gestion", day: 4, block: 0, group: "63", room: "", building: "" },
+  { id: "c5", subjectId: "electronica", day: 1, block: 1, group: "61", room: "", building: "" },
+  { id: "c6", subjectId: "proyecto", day: 2, block: 1, group: "402", room: "", building: "" },
+  { id: "c7", subjectId: "electronica", day: 3, block: 1, group: "61", room: "", building: "" },
+  { id: "c8", subjectId: "estadistica", day: 0, block: 2, group: "401", room: "", building: "" },
+  { id: "c9", subjectId: "estadistica", day: 2, block: 2, group: "401", room: "", building: "" },
+  { id: "c10", subjectId: "ingles", day: 3, block: 2, group: "Fantastic", room: "", building: "" },
+  { id: "c11", subjectId: "estadistica", day: 4, block: 2, group: "401", room: "", building: "" },
 ]
 
 export function getSubject(id: string) {
