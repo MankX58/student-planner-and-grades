@@ -26,8 +26,7 @@ import {
   DragOverlay,
   useSensor,
   useSensors,
-  PointerSensor,
-  TouchSensor,
+  MouseSensor,
   type DragStartEvent,
   type DragEndEvent,
   defaultDropAnimationSideEffects,
@@ -110,16 +109,9 @@ function DraggableClass({
       <span className="text-xs font-semibold leading-tight">{subject.name}</span>
       <span className="text-[11px] opacity-80">Grupo: {c.group || "—"}</span>
       <span className="text-[11px] opacity-80">Salón: {c.room || "—"}</span>
-      <button 
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          onClick();
-        }}
-        className="absolute top-2 right-2 opacity-0 transition group-hover:opacity-60 p-1 hover:bg-black/10 rounded"
-      >
+      <div className="absolute top-2 right-2 opacity-0 transition group-hover:opacity-60 text-neutral-900/50 sm:hidden group-hover:sm:block">
         <Pencil className="size-3" />
-      </button>
+      </div>
     </div>
   )
 }
@@ -148,11 +140,8 @@ export function HorarioTab({ subjects, setSubjects, classes, setClasses, setGrad
   const [selectedMobileDay, setSelectedMobileDay] = useState(0)
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor, {
       activationConstraint: { distance: 5 },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: { delay: 200, tolerance: 5 },
     })
   )
 
@@ -231,10 +220,10 @@ export function HorarioTab({ subjects, setSubjects, classes, setClasses, setGrad
         <div>
           <h2 className="text-lg font-semibold">Mi horario</h2>
           <p className="text-sm text-muted-foreground hidden sm:block">
-            Arrastra las clases para reordenarlas. Toca el ícono de lápiz para editar.
+            Arrastra las clases para reordenarlas. Toca para editar.
           </p>
           <p className="text-sm text-muted-foreground sm:hidden">
-            Mantén presionado para reordenar.
+            Toca una clase para editarla o moverla.
           </p>
         </div>
         <div className="flex items-center gap-2">

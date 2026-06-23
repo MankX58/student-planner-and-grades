@@ -6,6 +6,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import {
+  FINAL_WEIGHT,
+  PASSING_GRADE,
+  accumulatedPoints,
+  coveredWeight,
   neededOnFinal,
   getSubject,
   type Subject,
