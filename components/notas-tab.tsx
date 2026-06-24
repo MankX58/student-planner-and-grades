@@ -1,51 +1,115 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Plus, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
-  SUBJECTS,
   FINAL_WEIGHT,
   PASSING_GRADE,
   accumulatedPoints,
   coveredWeight,
   neededOnFinal,
+  getSubject,
+  type Subject,
   type Grade,
 } from "@/lib/horario-data"
 
 type GradesMap = Record<string, Grade[]>
 
 type Props = {
+  subjects: Subject[]
   grades: GradesMap
   setGrades: React.Dispatch<React.SetStateAction<GradesMap>>
 }
 
-export function NotasTab({ grades, setGrades }: Props) {
+export function NotasTab({ subjects, grades, setGrades }: Props) {
+  const [selectedSubjectId, setSelectedSubjectId] = useState(subjects[0]?.id ?? "")
+
+  useEffect(() => {
+    if (subjects.length === 0) {
+      setSelectedSubjectId("")
+      return
+    }
+
+    setSelectedSubjectId((current) => {
+      if (current && subjects.some((subject) => subject.id === current)) {
+        return current
+      }
+
+      return subjects[0].id
+    })
+  }, [subjects])
+
+  const selectedSubject = subjects.find((subject) => subject.id === selectedSubjectId) ?? subjects[0]
+
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-lg font-semibold">Mis notas</h2>
         <p className="text-sm text-muted-foreground">
           Agrega cada nota con su porcentaje. El final siempre vale {FINAL_WEIGHT}% y abajo
-          verás cuánto necesitas en él para quedar mínimo en {PASSING_GRADE.toFixed(1)}.
+          verás cuánto necesitas sacar en el final para que la materia te quede en {PASSING_GRADE.toFixed(1)}.
         </p>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        {SUBJECTS.map((s) => (
-          <SubjectGrades
-            key={s.id}
-            subjectId={s.id}
-            name={s.name}
-            bg={s.bg}
-            border={s.border}
-            grades={grades[s.id] ?? []}
-            setGrades={setGrades}
-          />
-        ))}
-      </div>
+      {subjects.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-12 px-4 text-center border-2 border-dashed rounded-xl bg-card animate-scale-in">
+          <p className="text-sm text-muted-foreground">
+            No tienes materias creadas. Ve al horario y crea tus materias para poder agregar notas.
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="sm:hidden space-y-3 rounded-2xl border bg-card p-4 shadow-sm animate-slide-up">
+            <div className="space-y-1">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Materia visible</p>
+              <Select value={selectedSubject?.id ?? ""} onValueChange={setSelectedSubjectId}>
+                <SelectTrigger className="h-10 rounded-xl">
+                  <SelectValue placeholder="Selecciona una materia">
+                    {() => selectedSubject?.name}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {subjects.map((subject) => (
+                    <SelectItem key={subject.id} value={subject.id}>
+                      {subject.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {selectedSubject ? (
+              <SubjectGrades
+                key={selectedSubject.id}
+                subjectId={selectedSubject.id}
+                name={selectedSubject.name}
+                bg={selectedSubject.bg}
+                border={selectedSubject.border}
+                grades={grades[selectedSubject.id] ?? []}
+                setGrades={setGrades}
+              />
+            ) : null}
+          </div>
+
+          <div className="hidden sm:grid gap-4 lg:grid-cols-2 animate-slide-up">
+            {subjects.map((s) => (
+              <SubjectGrades
+                key={s.id}
+                subjectId={s.id}
+                name={s.name}
+                bg={s.bg}
+                border={s.border}
+                grades={grades[s.id] ?? []}
+                setGrades={setGrades}
+              />
+            ))}
+          </div>
+        </>
+      )}
     </div>
   )
 }
@@ -114,7 +178,7 @@ function SubjectGrades({
   const impossible = needed > 5
 
   return (
-    <Card className="overflow-hidden p-0">
+    <Card className="overflow-hidden p-0 animate-pop">
       <div
         className="px-4 py-3 text-neutral-900"
         style={{ backgroundColor: bg, borderBottom: `1px solid ${border}` }}
@@ -128,7 +192,7 @@ function SubjectGrades({
             {grades.map((g) => (
               <li
                 key={g.id}
-                className="flex items-center justify-between gap-2 rounded-md bg-muted/60 px-3 py-1.5 text-sm"
+                className="flex items-center justify-between gap-2 rounded-md bg-muted/60 px-3 py-1.5 text-sm animate-fade-in"
               >
                 <span className="truncate">{g.name}</span>
                 <span className="flex items-center gap-3 whitespace-nowrap text-muted-foreground">
@@ -151,7 +215,7 @@ function SubjectGrades({
         )}
 
         {/* Form para agregar */}
-        <div className="grid grid-cols-[1fr_auto_auto_auto] items-end gap-2">
+        <div className="flex flex-col sm:grid sm:grid-cols-[1fr_auto_auto_auto] items-stretch sm:items-end gap-3 sm:gap-2">
           <div className="space-y-1">
             <label className="text-xs text-muted-foreground">Nombre</label>
             <Input
@@ -197,8 +261,8 @@ function SubjectGrades({
         ) : (
           <p className="text-xs text-muted-foreground">
             {remainingWeight > 0
-              ? `Disponible: ${remainingWeight}% por asignar.`
-              : "Ya asignaste el 100% de las notas."}
+              ? `Queda ${remainingWeight}% por asignar.`
+              : "Ya asignaste el 100%"}
           </p>
         )}
 
@@ -213,21 +277,21 @@ function SubjectGrades({
             className="rounded-lg p-3"
             style={{
               backgroundColor: alreadyPassed
-                ? "#dcfce7"
+                ? "#DCDCDC"
                 : impossible
-                  ? "#fee2e2"
-                  : "#fef9c3",
+                  ? "#676767"
+                  : "#AEAEAE",
             }}
           >
-            <p className="text-xs text-neutral-700">Necesitas en el final ({FINAL_WEIGHT}%)</p>
+            <p className="text-xs font-semibold text-neutral-900">Necesitas en el final ({FINAL_WEIGHT}%)</p>
             {alreadyPassed ? (
-              <p className="text-xl font-semibold text-neutral-900">¡Ya pasaste! 🎉</p>
+              <p className="text-xl font-semibold text-neutral-900">Ya ganaste la materia</p>
             ) : impossible ? (
-              <p className="text-xl font-semibold text-neutral-900">{needed.toFixed(2)} (imposible)</p>
+              <p className="text-xl font-semibold text-neutral-900">{needed.toFixed(2)} (💀)</p>
             ) : (
               <p className="text-xl font-semibold text-neutral-900">{needed.toFixed(2)}</p>
             )}
-            <p className="text-[11px] text-neutral-700">para quedar en {PASSING_GRADE.toFixed(1)}</p>
+            <p className="text-[11px] font-semibold text-neutral-900">para quedar en {PASSING_GRADE.toFixed(1)}</p>
           </div>
         </div>
       </div>
