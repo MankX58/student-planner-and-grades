@@ -51,7 +51,7 @@ export function NotasTab({ subjects, grades, setGrades }: Props) {
         <h2 className="text-lg font-semibold">Mis notas</h2>
         <p className="text-sm text-muted-foreground">
           Agrega cada nota con su porcentaje. El final siempre vale {FINAL_WEIGHT}% y abajo
-          verás cuánto necesitas en él para quedar mínimo en {PASSING_GRADE.toFixed(1)}.
+          verás cuánto necesitas sacar en el final para que la materia te quede en {PASSING_GRADE.toFixed(1)}.
         </p>
       </div>
 
@@ -261,8 +261,8 @@ function SubjectGrades({
         ) : (
           <p className="text-xs text-muted-foreground">
             {remainingWeight > 0
-              ? `Disponible: ${remainingWeight}% por asignar.`
-              : "Ya asignaste el 100% de las notas."}
+              ? `Queda ${remainingWeight}% por asignar.`
+              : "Ya asignaste el 100%"}
           </p>
         )}
 
@@ -279,15 +279,15 @@ function SubjectGrades({
               backgroundColor: alreadyPassed
                 ? "#dcfce7"
                 : impossible
-                  ? "#fee2e2"
-                  : "#fef9c3",
+                  ? "#424242"
+                  : "#AEAEAE",
             }}
           >
             <p className="text-xs text-neutral-700">Necesitas en el final ({FINAL_WEIGHT}%)</p>
             {alreadyPassed ? (
-              <p className="text-xl font-semibold text-neutral-900">¡Ya pasaste! 🎉</p>
+              <p className="text-xl font-semibold text-neutral-900">Ya ganaste la materia</p>
             ) : impossible ? (
-              <p className="text-xl font-semibold text-neutral-900">{needed.toFixed(2)} (imposible)</p>
+              <p className="text-xl font-semibold text-neutral-900">{needed.toFixed(2)} (💀)</p>
             ) : (
               <p className="text-xl font-semibold text-neutral-900">{needed.toFixed(2)}</p>
             )}

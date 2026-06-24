@@ -60,7 +60,7 @@ export function PlannerView({ userName, userEmail }: { userName: string; userEma
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-balance md:text-3xl">Mi semestre</h1>
           <p className="mt-1 text-sm text-muted-foreground text-pretty">
-            Hola{userName ? `, ${userName.split(" ")[0]}` : ""}. Horario, notas y exámenes sincronizados en tu cuenta.
+            Hola{userName ? `, ${userName.split(" ")[0]}` : ""}.
           </p>
           <p className="mt-2 text-xs text-muted-foreground">
             Sesión activa: <span className="font-medium text-foreground">{userEmail || "correo no disponible"}</span>
@@ -128,7 +128,7 @@ export function PlannerView({ userName, userEmail }: { userName: string; userEma
       <footer className="mt-10 flex flex-col items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
         <div className="flex items-center justify-center gap-1.5">
           <CloudOff className="size-3.5" />
-          <span>Tus datos se guardan en tu cuenta y se sincronizan entre dispositivos.</span>
+          <span>La información se sincroniza entre dispositivos.</span>
         </div>
         <p>Por Manuel Gutiérrez. Todos los derechos reservados.</p>
       </footer>

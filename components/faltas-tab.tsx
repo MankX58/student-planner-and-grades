@@ -105,7 +105,7 @@ export function FaltasTab({ subjects, absences, setAbsences, subjectConfigs, set
         <div>
           <h2 className="text-lg font-semibold">Faltas</h2>
           <p className="text-sm text-muted-foreground hidden sm:block">
-            Registra tus faltas por materia y consulta cuántas te quedan disponibles.
+            Registra tus faltas por materia y mira cuántas faltas te quedan antes de cancelar.
           </p>
         </div>
         <Button onClick={openAdd} size="sm" className="rounded-full shadow-sm">
@@ -153,7 +153,7 @@ export function FaltasTab({ subjects, absences, setAbsences, subjectConfigs, set
                 ) : isCancelled ? (
                   <div className="flex items-center gap-2 text-sm bg-red-50 border border-red-200 text-red-700 rounded-lg px-3 py-2">
                     <XCircle className="size-4 shrink-0" />
-                    <span className="font-semibold">Materia cancelada — superaste el límite de {limit} falta{limit !== 1 ? "s" : ""}.</span>
+                    <span className="font-semibold">Materia cancelada — te pasaste del límite de {limit} falta{limit !== 1 ? "s" : ""}.</span>
                   </div>
                 ) : isAtRisk ? (
                   <div className="flex items-center gap-2 text-sm bg-amber-50 border border-amber-200 text-amber-700 rounded-lg px-3 py-2">

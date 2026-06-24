@@ -65,7 +65,7 @@ export function ExamenesTab({ subjects, exams, setExams }: Props) {
       <div>
         <h2 className="text-lg font-semibold">Fechas de exámenes</h2>
         <p className="text-sm text-muted-foreground">
-          Registra tus exámenes y presentaciones con su modalidad y porcentaje.
+          Anota las fechas de tus exámenes.
         </p>
       </div>
 
